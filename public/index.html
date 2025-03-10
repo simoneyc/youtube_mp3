@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube MP3 Download Tool</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      background: black;
+      color: #00ffea;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #00ffea, 0 0 30px #ff00ff;
+      display: inline-block;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    input {
+      width: 85%;
+      padding: 12px;
+      background: black;
+      border: 2px solid #ff00ff;
+      color: #00ffea;
+      border-radius: 8px;
+      font-size: 18px;
+      outline: none;
+      text-align: center;
+      box-shadow: 0 0 8px #ff00ff;
+    }
+
+    button {
+      font-family: 'Orbitron', sans-serif;
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
+      color: black;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff00ff, #00ffea);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffea;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #00ffea, #ff00ff);
+      box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffea;
+    }
+
+    #loading {
+      font-size: 18px;
+      margin-top: 15px;
+      text-shadow: 0 0 10px #ff00ff;
+      display: none;
+    }
+
+    #progressBarContainer {
+      display: none;
+      width: 100%;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    #progressBar {
+      height: 10px;
+      width: 0%;
+      background: linear-gradient(45deg, #ff00ff, #00ffea);
+      transition: width 0.3s ease;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00ffea;
+    }
+
+    .download-btn {
+      display: inline-block;
+      padding: 12px 20px;
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      color: black;
+      background: linear-gradient(45deg, #00ffea, #ff00ff);
+      border-radius: 8px;
+      transition: 0.3s;
+      box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffea;
+    }
+
+    .download-btn:hover {
+      background: linear-gradient(45deg, #ff00ff, #00ffea);
+      box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffea;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>YouTube MP3 Download 🎵</h1>
+  
+  <div class="container">
+    <input type="text" id="url" placeholder="Paste YouTube link">
+    <br>
+    <button onclick="download()">🚀 Press Me</button>
+    <p id="loading">⚡ Working, please wait...</p>
+
+    <div id="progressBarContainer">
+      <div id="progressBar"></div>
+    </div>
+
+    <p id="result"></p>
+  </div>
+
+  <script>
+    async function download() {
+      const url = document.getElementById('url').value;
+      if (!url) return alert('Please input YouTube link');
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('progressBarContainer').style.display = 'block';
+      document.getElementById('progressBar').style.width = '0%';
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (progress >= 100) {
+          clearInterval(interval);
+        } else {
+          progress += Math.random() * 15;
+          document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
+        }
+      }, 500);
+
+      const res = await fetch('/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      clearInterval(interval);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('progressBar').style.width = '100%';
+
+      const data = await res.json();
+      if (data.downloadUrl) {
+        document.getElementById('result').innerHTML = 
+          `<a href='${data.downloadUrl}' download class="download-btn">🔗 Download</a>`;
+      } else {
+        alert('error...please check the link');
+      }
+    }
+  </script>
+
+</body>
+</html>
